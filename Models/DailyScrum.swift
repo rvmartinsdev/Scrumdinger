@@ -7,11 +7,12 @@
 
 import Foundation
 import ThemeKit
+import SwiftData
 
-struct DailyScrum: Identifiable {
-    let id: UUID
+@Model
+class DailyScrum: Identifiable {
+    var id: UUID
     var title: String
-    var attendees: [Attendee]
     var lengthInMinutes: Int
     var lengthInMinutesAsDoubles: Double {
         get {
@@ -22,6 +23,11 @@ struct DailyScrum: Identifiable {
         }
     }
     var theme: Theme
+    
+    @Relationship(deleteRule: .cascade, inverse: \Attendee.dailyScrum)
+    var attendees: [Attendee]
+    
+    @Relationship(deleteRule: .cascade, inverse: \History.dailyScrum)
     var history: [History] = []
     
     init(id: UUID = UUID(), title: String, attendees: [String], lengthInMinutes: Int, theme: Theme) {
@@ -30,21 +36,5 @@ struct DailyScrum: Identifiable {
         self.attendees = attendees.map { Attendee(name: $0) }
         self.lengthInMinutes = lengthInMinutes
         self.theme = theme
-    }
-}
-
-extension DailyScrum {
-    struct Attendee: Identifiable {
-        let id: UUID
-        let name: String
-        
-        init(id: UUID = UUID(), name: String) {
-            self.id = id
-            self.name = name
-        }
-    }
-    
-    static var emptyScrum: DailyScrum {
-        DailyScrum(title: "", attendees: [], lengthInMinutes: 5, theme: .sky)
     }
 }
